@@ -1,7 +1,10 @@
-import { Menu, User } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { Menu } from "lucide-react";
+import { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
 
 const Navbar = () => {
+  const [open, setOpen] = useState(false);
+
   const navStyle = ({ isActive }) =>
     `pb-2 text-lg font-semibold transition-all duration-200 border-b-2 ${
       isActive
@@ -14,47 +17,67 @@ const Navbar = () => {
       <div className="w-full px-8 h-20 flex items-center justify-between">
 
         {/* Logo */}
-        <h1 className="text-2xl font-bold text-rose-500 cursor-pointer tracking-tight">
+        <h1 className="text-2xl font-bold text-rose-500 cursor-pointer">
           StayNest
         </h1>
 
         {/* Center Nav */}
         <ul className="hidden md:flex items-center gap-10">
-          <li>
-            <NavLink to="/" className={navStyle}>
-              Homes
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink to="/experiences" className={navStyle}>
-             Share Your Experiences
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink to="/services" className={navStyle}>
-              Services
-            </NavLink>
-          </li>
+          <li><NavLink to="/" className={navStyle}>Home</NavLink></li>
+          <li><NavLink to="/experiences" className={navStyle}>Share Your Experiences</NavLink></li>
+          <li><NavLink to="/services" className={navStyle}>Services</NavLink></li>
         </ul>
 
         {/* Right Side */}
-        <div className="flex items-center gap-3">
+        <div className="relative">
 
-          <button className="hidden md:block px-4 py-2 rounded-full text-lg font-semibold hover:bg-gray-100 transition">
-            Become a host
-          </button>
-
-          <button className="flex items-center gap-3 border border-gray-300 px-3 py-2 rounded-full hover:shadow-md transition bg-white">
+          {/* Menu Button */}
+          <button
+            onClick={() => setOpen(!open)}
+            className="flex items-center gap-3 border border-gray-300 px-3 py-2 rounded-full hover:shadow-md transition bg-white"
+          >
             <Menu size={22} />
-            <div className="bg-gray-500 rounded-full p-1">
-              <User size={20} className="text-white" />
-            </div>
           </button>
+
+          {/* Dropdown */}
+          {open && (
+            <div className="absolute right-0 mt-3 w-52 bg-white rounded-2xl shadow-xl border overflow-hidden z-50">
+
+              <Link
+                to="/host"
+                className="block px-4 py-3 hover:bg-gray-100"
+                onClick={() => setOpen(false)}
+              >
+                Become a Host
+              </Link>
+
+              <Link
+                to="/about"
+                className="block px-4 py-3 hover:bg-gray-100"
+                onClick={() => setOpen(false)}
+              >
+                About Us
+              </Link>
+
+              <Link
+                to="/contact"
+                className="block px-4 py-3 hover:bg-gray-100"
+                onClick={() => setOpen(false)}
+              >
+                Contact Us
+              </Link>
+
+              <Link
+                to="/Login"
+                className="block px-4 py-3 hover:bg-gray-100"
+                onClick={() => setOpen(false)}
+              >Login/Signup
+              </Link>
+
+            </div>
+          )}
 
         </div>
-
       </div>
     </nav>
   );
