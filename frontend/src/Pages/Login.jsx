@@ -1,3 +1,4 @@
+import { GoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -7,60 +8,151 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // Normal Login
   const handleLogin = async () => {
-    const res = await fetch("/api/auth/login", {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
 
     const data = await res.json();
 
     if (res.status === 200) {
       alert("Login Successful");
-      navigate("/");
+      localStorage.setItem("token", data.token);
+      navigate("/home");
+    } else {
+      alert(data.msg);
+    }
+  };
+
+  // Google Login
+  const handleGoogleLogin = async (credentialResponse) => {
+    const res = await fetch("http://localhost:5000/api/auth/google", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token: credentialResponse.credential,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (res.status === 200) {
+      alert("Google Login Successful");
+      localStorage.setItem("token", data.token);
+      navigate("/home");
     } else {
       alert(data.msg);
     }
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center">
-      <div className="w-96 bg-white p-8 shadow-lg rounded-xl">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-slate-100 flex items-center justify-center px-4">
 
-        <h2 className="text-3xl font-bold mb-6">Login</h2>
+      {/* Card */}
+      <div className="max-w-6xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden grid md:grid-cols-2">
 
-        <input
-          className="border w-full p-2 mb-4"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        {/* Left Side */}
+        <div className="relative hidden md:block">
+          <img
+            src="/Animate.png"
+            alt="StayNest"
+            className="h-full w-full object-cover"
+          />
 
-        <input
-          className="border w-full p-2 mb-4"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <div className="absolute inset-0 bg-black/45 flex flex-col justify-end p-10 text-white">
+            <h1 className="text-4xl font-bold mb-3 leading-tight">
+              Discover Luxury <br /> Stays With StayNest
+            </h1>
 
-        <button
-          onClick={handleLogin}
-          className="bg-black text-white w-full p-2 rounded"
-        >
-          Login
-        </button>
+            <p className="text-gray-200 text-lg">
+              Book premium homes, villas and experiences worldwide.
+            </p>
+          </div>
+        </div>
 
-        <p className="mt-4 text-center">
-          New User?{" "}
-          <Link to="/signup" className="text-rose-500 font-semibold">
-            Create Account
-          </Link>
-        </p>
+        {/* Right Side */}
+        <div className="p-8 md:p-14 flex flex-col justify-center">
 
+          <h2 className="text-4xl font-bold text-gray-800 mb-2">
+            Welcome Back 👋
+          </h2>
+
+          <p className="text-gray-500 mb-8">
+            Login to continue your journey.
+          </p>
+
+          {/* Email */}
+          <input
+            type="email"
+            placeholder="Enter your email"
+            className="w-full border border-gray-300 rounded-xl px-5 py-4 mb-4 focus:ring-2 focus:ring-rose-400 outline-none"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          {/* Password */}
+          <input
+            type="password"
+            placeholder="Enter password"
+            className="w-full border border-gray-300 rounded-xl px-5 py-4 mb-3 focus:ring-2 focus:ring-rose-400 outline-none"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          {/* Forgot */}
+          <div className="text-right mb-6">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-rose-500 hover:underline"
+            >
+              Forgot Password?
+            </Link>
+          </div>
+
+          {/* Login Button */}
+          <button
+            onClick={handleLogin}
+            className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:scale-[1.02] text-white py-4 rounded-xl font-semibold shadow-lg transition"
+          >
+            Login
+          </button>
+
+          {/* Divider */}
+          <div className="flex items-center my-7">
+            <div className="flex-1 h-px bg-gray-300"></div>
+            <span className="px-4 text-sm text-gray-400">
+              Or continue with
+            </span>
+            <div className="flex-1 h-px bg-gray-300"></div>
+          </div>
+
+          {/* Google Login */}
+          <div className="flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleLogin}
+              onError={() => alert("Google Login Failed")}
+            />
+          </div>
+
+          {/* Signup */}
+          <p className="text-center mt-8 text-gray-600">
+            New User?{" "}
+            <Link
+              to="/signup"
+              className="text-rose-500 font-semibold hover:underline"
+            >
+              Create Account
+            </Link>
+          </p>
+
+        </div>
       </div>
     </div>
   );

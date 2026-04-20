@@ -1,21 +1,19 @@
-import Header from "./components/Header";
-import Navbar from "./components/Navbar";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { Route, Routes } from "react-router-dom";
+import Home from "./Pages/Home";
 import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
-
-import { Route, Routes } from "react-router-dom";
-
 function App() {
   return (
-    <>
-      <Navbar />
-
+    <GoogleOAuthProvider clientId="426982018132-9sjqbjknrfim3e3taeu1fq7ph3atfe2j.apps.googleusercontent.com">
+      
+    <Home />
       <Routes>
-        <Route path="/" element={<Header />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
       </Routes>
-    </>
+
+    </GoogleOAuthProvider>
   );
 }
 
