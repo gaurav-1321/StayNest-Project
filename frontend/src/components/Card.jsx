@@ -2,60 +2,94 @@ import axios from "axios";
 import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const Card = ({ searchData }) => {
+const Card = ({ searchData, title }) => {
   const [hotels, setHotels] = useState([]);
 
   useEffect(() => {
-    if (!searchData) return;
+    const fetchHotels = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:5000/api/hotels/search?q=${searchData}`
+        );
 
-    axios
-      .get(`http://localhost:5000/api/hotels/search?q=${searchData}`)
-      .then((res) => {
         setHotels(res.data.properties || []);
-      })
-      .catch((err) => console.log(err));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchHotels();
   }, [searchData]);
 
+  const fallbackImage =
+    "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800";
+
   return (
-    <div className="px-8 py-10">
-      <h2 className="text-3xl font-semibold mb-8">
-        {searchData || "Popular Hotels"}
+    /* almost full page width like Airbnb */
+    <div className="max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <h2 className="text-2xl md:text-3xl font-semibold mb-6">
+        {title}
       </h2>
 
-      <div className="grid grid-cols-4 gap-7">
-        {hotels.map((hotel, index) => (
+      <div
+        className="flex gap-4 overflow-x-auto scroll-smooth"
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
+        {hotels.slice(0, 8).map((hotel, index) => (
           <div
             key={index}
-            className="hover:scale-105 duration-300 cursor-pointer"
+            className="min-w-[240px] sm:min-w-[260px] md:min-w-[280px] flex-shrink-0 hover:scale-105 duration-300 cursor-pointer"
           >
             <img
               src={
                 hotel.images?.[0]?.thumbnail ||
-                "https://via.placeholder.com/400"
+                hotel.images?.[0]?.original_image ||
+                hotel.images?.[1]?.thumbnail ||
+                hotel.images?.[1]?.original_image ||
+                fallbackImage
               }
               alt={hotel.name}
-              className="w-full h-72 object-cover rounded-2xl"
+              className="w-full h-60 object-cover rounded-2xl"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = fallbackImage;
+              }}
             />
 
             <div className="mt-3">
-              <div className="flex justify-between">
-                <h3 className="font-semibold">{hotel.name}</h3>
+              <div className="flex justify-between gap-2">
+                <h3 className="font-semibold text-sm line-clamp-1">
+                  {hotel.name}
+                </h3>
 
-                <div className="flex gap-1 items-center">
+                <div className="flex items-center gap-1 text-sm">
                   <Star size={14} fill="black" />
                   {hotel.overall_rating || "4.0"}
                 </div>
               </div>
 
-              <p className="text-gray-500 text-sm">{hotel.type}</p>
+              <p className="text-gray-500 text-sm">
+                {hotel.type || "Hotel"}
+              </p>
 
-              <p className="mt-2 font-medium">
+              <p className="mt-1 font-medium text-sm">
                 ₹{hotel.rate_per_night?.lowest || "2500"} / night
               </p>
             </div>
           </div>
         ))}
       </div>
+
+      <style>
+        {`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}
+      </style>
     </div>
   );
 };
