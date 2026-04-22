@@ -1,97 +1,91 @@
-import axios from "axios";
-import { Star } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { useState } from "react";
 
-const Card = ({ searchData, title }) => {
-  const [hotels, setHotels] = useState([]);
+const ExperienceCard = ({ post }) => {
+  const [index, setIndex] = useState(0);
+  const images = post.images || [];
 
-  useEffect(() => {
-    const fetchHotels = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:5000/api/hotels/search?q=${searchData}`
-        );
-
-        setHotels(res.data.properties || []);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchHotels();
-  }, [searchData]);
-
-  const fallbackImage =
+  const fallback =
     "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800";
 
+  const nextImg = () => {
+    setIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  const prevImg = () => {
+    setIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
   return (
-    /* almost full page width like Airbnb */
-    <div className="max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-      <h2 className="text-2xl md:text-3xl font-semibold mb-6">
-        {title}
-      </h2>
+    <div className="w-[240px] flex-shrink-0 bg-white rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
 
-      <div
-        className="flex gap-4 overflow-x-auto scroll-smooth"
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-      >
-        {hotels.slice(0, 8).map((hotel, index) => (
-          <div
-            key={index}
-            className="min-w-[240px] sm:min-w-[260px] md:min-w-[280px] flex-shrink-0 hover:scale-105 duration-300 cursor-pointer"
+      {/* IMAGE */}
+      <div className="relative w-full h-40">
+
+        <img
+          src={images[index] || fallback}
+          alt="experience"
+          className="w-full h-full object-cover"
+        />
+
+        {/* LEFT */}
+        {images.length > 1 && (
+          <button
+            onClick={prevImg}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 p-1 rounded-full"
           >
-            <img
-              src={
-                hotel.images?.[0]?.thumbnail ||
-                hotel.images?.[0]?.original_image ||
-                hotel.images?.[1]?.thumbnail ||
-                hotel.images?.[1]?.original_image ||
-                fallbackImage
-              }
-              alt={hotel.name}
-              className="w-full h-60 object-cover rounded-2xl"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = fallbackImage;
-              }}
-            />
+            <ChevronLeft size={16} />
+          </button>
+        )}
 
-            <div className="mt-3">
-              <div className="flex justify-between gap-2">
-                <h3 className="font-semibold text-sm line-clamp-1">
-                  {hotel.name}
-                </h3>
+        {/* RIGHT */}
+        {images.length > 1 && (
+          <button
+            onClick={nextImg}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 p-1 rounded-full"
+          >
+            <ChevronRight size={16} />
+          </button>
+        )}
 
-                <div className="flex items-center gap-1 text-sm">
-                  <Star size={14} fill="black" />
-                  {hotel.overall_rating || "4.0"}
-                </div>
-              </div>
-
-              <p className="text-gray-500 text-sm">
-                {hotel.type || "Hotel"}
-              </p>
-
-              <p className="mt-1 font-medium text-sm">
-                ₹{hotel.rate_per_night?.lowest || "2500"} / night
-              </p>
-            </div>
+        {/* COUNTER */}
+        {images.length > 1 && (
+          <div className="absolute bottom-2 right-2 text-xs bg-black/60 text-white px-2 py-0.5 rounded">
+            {index + 1}/{images.length}
           </div>
-        ))}
+        )}
       </div>
 
-      <style>
-        {`
-          div::-webkit-scrollbar {
-            display: none;
-          }
-        `}
-      </style>
+      {/* CONTENT */}
+      <div className="p-3">
+
+        <div className="flex justify-between">
+          <h3 className="font-semibold text-sm">{post.name}</h3>
+          <span className="text-xs text-gray-400">{post.time}</span>
+        </div>
+
+        <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+          {post.text}
+        </p>
+
+        {/* STARS */}
+        <div className="flex gap-1 mt-2">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              size={14}
+              className={
+                i < post.rating
+                  ? "text-yellow-400 fill-yellow-400"
+                  : "text-gray-300"
+              }
+            />
+          ))}
+        </div>
+
+      </div>
     </div>
   );
 };
 
-export default Card;
+export default ExperienceCard;

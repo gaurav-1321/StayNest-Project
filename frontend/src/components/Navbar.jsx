@@ -1,7 +1,6 @@
 import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-
 const Navbar = () => {
   const [open, setOpen] = useState(false);
 
@@ -24,7 +23,7 @@ const Navbar = () => {
         {/* Center Nav */}
         <ul className="hidden md:flex items-center gap-10">
           <li><NavLink to="/" className={navStyle}>Home</NavLink></li>
-          <li><NavLink to="/experiences" className={navStyle}>Share Your Experiences</NavLink></li>
+          <li><NavLink to="/user-experience" className={navStyle}>Share Your Experiences</NavLink></li>
           <li><NavLink to="/services" className={navStyle}>Services</NavLink></li>
         </ul>
 
