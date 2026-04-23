@@ -32,40 +32,42 @@ const CreatePost = ({ onAddPost }) => {
     <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
 
       {/* HEADER */}
-      <div className="p-4 border-b">
-        <h2 className="text-lg font-semibold text-gray-800">
+      <div className="p-5 border-b">
+        <h2 className="text-xl font-bold text-gray-900">
           Share your experience
         </h2>
-        <p className="text-xs text-gray-500">
-          Tell others about your stay, trip or hotel experience
+        <p className="text-sm font-semibold text-gray-600">
+          Tell others about your stay...
         </p>
       </div>
 
-      <div className="p-5 space-y-4">
+      <div className="p-5 space-y-5">
 
         {/* TEXT AREA */}
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Write something about your experience..."
-          className="w-full border rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-black resize-none"
+          placeholder="Write about your experience..."
+          className="w-full border rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-rose-500 resize-none transition text-slate-500 font-semibold"
           rows={3}
         />
 
         {/* RATING */}
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">Rating</span>
+          <span className="text-xl font-bold text-gray-00">
+            Rating
+          </span>
 
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((r) => (
               <Star
                 key={r}
-                size={18}
+                size={20}
                 onClick={() => setRating(r)}
                 className={`cursor-pointer transition ${
                   r <= rating
-                    ? "text-yellow-400 fill-yellow-400"
-                    : "text-gray-300"
+                    ? "text-slate-400 fill-rose-500 scale-110 "
+                    : "text-rose-500 "
                 }`}
               />
             ))}
@@ -73,17 +75,18 @@ const CreatePost = ({ onAddPost }) => {
         </div>
 
         {/* UPLOAD AREA */}
-        <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 bg-gray-50">
+        <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 bg-gray-50 hover:border-rose-400 transition">
 
           {images.length === 0 ? (
-            <label className="flex flex-col items-center justify-center gap-2 cursor-pointer py-6 text-gray-500 hover:text-black transition">
-              <ImagePlus size={30} />
+            <label className="flex flex-col items-center justify-center gap-2 cursor-pointer py-8 text-gray-500 hover:text-rose-500 transition">
+              <ImagePlus size={32} />
               <span className="text-sm font-medium">
-                Click to upload photos
+                Upload photos
               </span>
               <span className="text-xs text-gray-400">
                 PNG, JPG, JPEG (multiple allowed)
               </span>
+
               <input
                 type="file"
                 multiple
@@ -95,16 +98,18 @@ const CreatePost = ({ onAddPost }) => {
           ) : (
             <div className="grid grid-cols-4 gap-2">
               {images.map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  alt="preview"
-                  className="w-full h-20 object-cover rounded-lg"
-                />
+                <div key={i} className="relative group">
+                  <img
+                    src={img}
+                    alt="preview"
+                    className="w-full h-20 object-cover rounded-lg"
+                  />
+                </div>
               ))}
 
               {/* ADD MORE */}
-              <label className="w-full h-20 flex items-center justify-center border rounded-lg cursor-pointer text-gray-400 hover:text-black">
+              <label className="w-full h-20 flex items-center justify-center border rounded-lg cursor-pointer text-gray-500
+              font-semibold hover:text-rose-500 hover:border-rose-400 transition">
                 +
                 <input
                   type="file"
@@ -121,10 +126,11 @@ const CreatePost = ({ onAddPost }) => {
         {/* BUTTON */}
         <button
           onClick={handleSubmit}
-          className="w-full bg-black text-white py-2.5 rounded-xl font-medium hover:bg-gray-800 transition"
+          className="w-full bg-rose-500 text-white py-3 rounded-xl font-medium hover:bg-rose-600 hover:scale-[1.02] active:scale-95 transition duration-200"
         >
           Post Experience
         </button>
+
       </div>
     </div>
   );

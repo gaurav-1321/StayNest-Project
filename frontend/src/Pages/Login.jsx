@@ -1,6 +1,7 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -53,6 +54,8 @@ const Login = () => {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-slate-100 flex items-center justify-center px-4">
 
       {/* Card */}
@@ -155,6 +158,7 @@ const Login = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

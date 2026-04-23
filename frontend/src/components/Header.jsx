@@ -1,11 +1,12 @@
 import { LocateIcon, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const Header = ({ setSearchData }) => {
   const [query, setQuery] = useState("");
   const [places, setPlaces] = useState([]);
+  const wrapperRef = useRef(null);
 
-  // AUTO SUGGESTIONS WHILE TYPING
+  // AUTO SUGGESTIONS
   useEffect(() => {
     if (query.trim().length < 2) {
       setPlaces([]);
@@ -14,7 +15,7 @@ const Header = ({ setSearchData }) => {
 
     const timer = setTimeout(() => {
       fetchPlaces();
-    }, 400); // debounce
+    }, 400);
 
     return () => clearTimeout(timer);
   }, [query]);
@@ -37,14 +38,26 @@ const Header = ({ setSearchData }) => {
     }
   };
 
-  // CLICK SUGGESTION
+  // CLOSE DROPDOWN ON OUTSIDE CLICK
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setPlaces([]);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // SELECT PLACE
   const selectPlace = (place) => {
     setQuery(place.name);
     setSearchData(place.name);
     setPlaces([]);
   };
 
-  // SEARCH BUTTON
+  // SEARCH
   const handleSearch = () => {
     setSearchData(query);
     setPlaces([]);
@@ -57,34 +70,37 @@ const Header = ({ setSearchData }) => {
       setSearchData("Nearby Hotels");
     });
   };
-   console.log(query);
 
   return (
-    <div className="flex justify-center mt-10 px-8">
-      <div className="flex items-center bg-white rounded-full shadow-lg px-4 py-3 w-full max-w-5xl relative">
-
+    <div className="flex justify-center mt-16 px-4">
+      <div
+        ref={wrapperRef}
+        className="flex items-center backdrop-blur-md bg-white/80 rounded-full shadow-xl px-4 py-3 w-full max-w-5xl relative border border-white/30"
+      >
         {/* INPUT */}
         <div className="flex-1 px-4 relative">
           <input
             type="text"
             value={query}
-            placeholder="Your Destination!!"
-            className="w-full outline-none text-gray-700 text-lg"
+            placeholder="Search destinations..."
+            className="w-full outline-none text-gray-800 text-lg bg-transparent"
             onChange={(e) => setQuery(e.target.value)}
           />
 
-          {/* LIVE SUGGESTIONS */}
+          {/* DROPDOWN */}
           {places.length > 0 && (
-            <div className="absolute top-14 left-0 w-full bg-white shadow-xl rounded-xl z-50 max-h-72 overflow-y-auto">
+            <div className="absolute top-14 left-0 w-full backdrop-blur-md bg-white/90 shadow-xl rounded-xl z-50 max-h-72 overflow-y-auto border border-white/20">
+              
               {places.map((place, index) => (
                 <div
                   key={index}
                   onClick={() => selectPlace(place)}
-                  className="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm"
+                  className="px-4 py-3 hover:bg-black/10 cursor-pointer text-sm text-gray-800"
                 >
                   {place.name}
                 </div>
               ))}
+
             </div>
           )}
         </div>
@@ -95,7 +111,7 @@ const Header = ({ setSearchData }) => {
         {/* SEARCH */}
         <button
           onClick={handleSearch}
-          className="ml-4 bg-pink-600 hover:bg-pink-700 text-white p-4 rounded-full"
+          className="ml-4 bg-rose-500 hover:bg-rose-600 text-white p-4 rounded-full shadow-md transition"
         >
           <Search size={22} />
         </button>
@@ -103,12 +119,11 @@ const Header = ({ setSearchData }) => {
         {/* NEARBY */}
         <button
           onClick={handleNearbyMe}
-          className="flex items-center gap-2 ml-3 bg-pink-500 hover:bg-pink-600 text-white px-5 py-3 rounded-full"
+          className="flex items-center gap-2 ml-3 bg-rose-400 hover:bg-rose-500 text-white px-5 py-3 rounded-full shadow-md transition"
         >
           <LocateIcon size={18} />
-          Nearby Me
+          Nearby
         </button>
-
       </div>
     </div>
   );
