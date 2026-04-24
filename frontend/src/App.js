@@ -1,38 +1,28 @@
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Home from "./Pages/Home";
+import Host from "./Pages/Host";
 import Login from "./Pages/Login";
 import Services from "./Pages/Services";
 import Signup from "./Pages/Signup";
 import Userexperi from "./Pages/Userexperi";
-import Navbar from "./components/Navbar";
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId="426982018132-9sjqbjknrfim3e3taeu1fq7ph3atfe2j.apps.googleusercontent.com">
-      
-      <div className="relative min-h-screen">
+    <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
 
-        {/* 🌄 Background Image */}
-        <div
-          className="fixed inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/bg-img.png')" }}
-        ></div>
+      <div className="min-h-screen bg-gray-50">
+        
+        <Routes>
+          <Route path="/" element={<Navigate to="/home" />} />
 
-        {/*  Blur + Overlay */}
-        <div className="fixed inset-0 backdrop-blur-md bg-black/30"></div>
-
-        {/* App Content */}
-        <div className="relative z-10">
-          <Routes>
-            <Route path="/nav" element={<Navbar/>}/>
-            <Route path="/" element={<Home />} />
-            <Route path="/user-experience" element={<Userexperi />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-          </Routes>
-        </div>
+          <Route path="/home" element={<Home />} />
+          <Route path="/user-experience" element={<Userexperi />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/host" element={<Host />} />
+        </Routes>
 
       </div>
 

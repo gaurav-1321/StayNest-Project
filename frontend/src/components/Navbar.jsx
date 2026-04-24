@@ -1,46 +1,101 @@
-import { Menu } from "lucide-react";
-import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { LogOut, Menu, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 40);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
   const navStyle = ({ isActive }) =>
-    `pb-2 text-lg font-semibold transition-all duration-200 border-b-2 ${
+    `pb-1 text-lg font-medium transition ${
       isActive
-        ? "border-black text-black"
-        : "border-transparent text-gray-600 hover:text-black hover:border-gray-300"
+        ? "border-b-2 border-rose-500"
+        : "hover:text-rose-500"
     }`;
 
   return (
-    <nav className="w-full sticky top-0 z-50 backdrop-blur-md bg-white/70 border-b border-white/20">
+    <nav
+      className={`w-full fixed top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-white/80 backdrop-blur-md shadow-md text-black"
+          : "bg-transparent text-white"
+      }`}
+    >
       <div className="w-full px-8 h-20 flex items-center justify-between">
 
-        {/* Logo */}
-        <h1 className="text-2xl font-bold text-rose-500 cursor-pointer">
+        {/* LOGO */}
+        <h1
+          onClick={() => navigate("/home")}
+          className="text-2xl font-bold cursor-pointer"
+        >
           StayNest
         </h1>
 
-        {/* Center Nav */}
-        <ul className="hidden md:flex items-center gap-10">
-          <li><NavLink to="/" className={navStyle}>Home</NavLink></li>
-          <li><NavLink to="/user-experience" className={navStyle}>Share Your Experiences</NavLink></li>
+        {/* LINKS */}
+        <ul className="hidden md:flex items-center gap-8">
+          <li><NavLink to="/home" className={navStyle}>Home</NavLink></li>
+          <li><NavLink to="/user-experience" className={navStyle}>Experiences</NavLink></li>
           <li><NavLink to="/services" className={navStyle}>Services</NavLink></li>
         </ul>
 
-        {/* Right Side */}
-        <div className="relative">
+        {/* RIGHT */}
+        <div className="flex items-center gap-3">
 
-          {/* Menu Button */}
+          {/* LOGIN / LOGOUT */}
+          {!token ? (
+            <Link
+              to="/login"
+              className={`flex items-center gap-2 px-4 py-2 rounded-full border transition ${
+                scrolled
+                  ? "bg-white text-black border-gray-300"
+                  : "bg-white/20 backdrop-blur-md text-white border-white/40"
+              }`}
+            >
+              <User size={18} />
+              <span className="text-sm font-medium">Login</span>
+            </Link>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition"
+            >
+              <LogOut size={18} />
+              Logout
+            </button>
+          )}
+
+          {/* MENU */}
           <button
             onClick={() => setOpen(!open)}
-            className="flex items-center gap-3 border border-gray-300 px-3 py-2 rounded-full hover:shadow-md transition bg-white"
+            className={`p-2 rounded-full border transition ${
+              scrolled
+                ? "bg-white border-gray-300"
+                : "bg-white/20 text-white border-white/40"
+            }`}
           >
-            <Menu size={22} />
+            <Menu size={20} />
           </button>
 
-          {/* Dropdown */}
+          {/* DROPDOWN */}
           {open && (
-            <div className="absolute right-0 mt-3 w-52 bg-white rounded-2xl shadow-xl border overflow-hidden z-50">
+            <div className="absolute right-8 top-20 w-56 bg-white rounded-xl shadow-xl border overflow-hidden">
 
               <Link
                 to="/host"
@@ -66,16 +121,8 @@ const Navbar = () => {
                 Contact Us
               </Link>
 
-              <Link
-                to="/Login"
-                className="block px-4 py-3 hover:bg-gray-100"
-                onClick={() => setOpen(false)}
-              >Login/Signup
-              </Link>
-
             </div>
           )}
-
         </div>
       </div>
     </nav>

@@ -7,75 +7,81 @@ import postsData from "../Userdata";
 
 const Userexperi = () => {
   const [posts, setPosts] = useState(postsData || []);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   const addPost = (newPost) => {
     if (!newPost || typeof newPost !== "object") return;
     setPosts((prev) => [newPost, ...prev]);
   };
 
+  const handleReadMore = (post) => {
+    setSelectedPost(post);
+  };
+
+  const closeDetail = () => {
+    setSelectedPost(null);
+  };
+
   return (
     <>
       <Navbar />
 
-      {/* 🌄 BACKGROUND IMAGE */}
+      {/* HEADER */}
       <div
-        className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat"
+        className="w-full h-[300px] bg-cover bg-center flex items-center justify-center text-white"
         style={{ backgroundImage: "url('/bg-img.png')" }}
-      ></div>
-
-      {/* 🌫️ OVERLAY */}
-      <div className="fixed inset-0 -z-10 bg-white/40 backdrop-blur-md"></div>
-
-      {/* MAIN CONTENT */}
-      <div className="max-w-7xl mx-auto px-6 py-10">
-        {/* HEADER */}
-        <div className="mb-10 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold">
-            User Experiences
-          </h1>
-          <p className="text-gray-600  font-semibold mt-2">
-            Discover real travel stories from users
+      >
+        <div className="bg-black/40 w-full h-full flex flex-col items-center justify-center">
+          <h1 className="text-4xl font-bold">User Experiences</h1>
+          <p className="mt-3 text-lg text-gray-200">
+            Real stories from travelers ✨
           </p>
         </div>
+      </div>
 
-        {/* CREATE POST */}
-        <div className="mb-10">
+      <div className="bg-white">
+        <div className="max-w-6xl mx-auto px-6 py-12">
+
           <CreatePost onAddPost={addPost} />
-        </div>
 
-        {/* DIVIDER */}
-        <div className="border-t border-gray-200 my-8"></div>
+          <h2 className="text-2xl font-bold mb-8">Latest Stories</h2>
 
-        {/* TITLE */}
-        <div className="flex items-center justify-between mb-6 px-1">
-          <h2 className="text-2xl font-bold">
-            Latest Posts
-          </h2>
-        </div>
+          <div className="flex gap-6">
 
-        {/* EMPTY STATE */}
-        {posts.length === 0 ? (
-          <div className="text-center mt-20">
-            <p className="text-xl font-semibold">
-              No posts yet...
-            </p>
-            <p className="text-gray-500 mt-2">
-              Be the first to share your experience
-            </p>
+            {/* LEFT SIDE - SELECTED POST */}
+            {selectedPost && (
+              <div className="w-1/2 space-y-4">
+                <ExperienceCard
+                  post={selectedPost}
+                  isActive={true}
+                  onReadMore={closeDetail}
+                />
+
+                <div className="p-4 bg-gray-50 rounded-xl">
+                  <h3 className="font-semibold text-lg">Full Story</h3>
+                  <p className="text-gray-600 mt-2">
+                    {selectedPost.text}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* RIGHT SIDE - ALL POSTS */}
+            <div className={selectedPost ? "w-1/2 space-y-6" : "w-full columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6"}>
+              {posts
+                .map((post, index) => (
+                  <div key={index} className="break-inside-avoid">
+                    <ExperienceCard
+                      post={post}
+                      onReadMore={() => handleReadMore(post)}
+                      isActive={selectedPost === post}
+                    />
+                  </div>
+                ))}
+            </div>
+
           </div>
-        ) : (
-          /* GRID */
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-
-            {posts
-              .filter((post) => post)
-              .map((post, index) => (
-                <ExperienceCard key={index} post={post} />
-              ))}
-
-          </div>
-        )}
-
+        </div>
       </div>
 
       <Footer />

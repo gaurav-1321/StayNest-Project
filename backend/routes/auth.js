@@ -36,10 +36,11 @@ router.post("/register", async (req, res) => {
     });
 
   } catch (err) {
-    console.log(err);
-    res.status(500).json({
-      msg: "Server Error"
-    });
+  console.log("REGISTER ERROR:", err.message); 
+  res.status(500).json({
+    msg: "Server Error",
+    error: err.message
+  });
   }
 });
 
@@ -103,7 +104,7 @@ router.post("/google", async (req, res) => {
 
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: process.env.CLIENT_ID,
+      audience: "426982018132-9sjqbjknrfim3e3taeu1fq7ph3atfe2j.apps.googleusercontent.com",
     });
 
     const payload = ticket.getPayload();

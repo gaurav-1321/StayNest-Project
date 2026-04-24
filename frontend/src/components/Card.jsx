@@ -1,156 +1,109 @@
 import axios from "axios";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
-const Card = ({ searchData }) => {
+const Card = ({ title, searchData }) => {
   const [hotels, setHotels] = useState([]);
-  const [imageIndex, setImageIndex] = useState({});
-  const [loading, setLoading] = useState(false);
+  const scrollRef = useRef();
 
   useEffect(() => {
-    if (!searchData) return;
+    const fetchHotels = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/hotels", {
+          params: { city: searchData },
+        });
 
-    setLoading(true);
+        setHotels(res.data || []);
+      } catch (error) {
+        console.log("Error fetching hotels:", error);
+      }
+    };
 
-    axios
-      .get(`http://localhost:5000/api/hotels/search?q=${searchData}`)
-      .then((res) => {
-        setHotels(res.data?.properties || []);
-      })
-      .catch((err) => console.log(err))
-      .finally(() => setLoading(false));
+    fetchHotels();
   }, [searchData]);
 
-  const nextImg = (i, length) => {
-    setImageIndex((prev) => ({
-      ...prev,
-      [i]: ((prev[i] || 0) + 1) % length,
-    }));
+  // 👉 Scroll Functions
+  const scrollLeft = () => {
+    scrollRef.current.scrollBy({ left: -300, behavior: "smooth" });
   };
 
-  const prevImg = (i, length) => {
-    setImageIndex((prev) => ({
-      ...prev,
-      [i]: prev[i] === 0 ? length - 1 : (prev[i] || 0) - 1,
-    }));
+  const scrollRight = () => {
+    scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-10 max-w-7xl mx-auto">
+    <div className="relative">
 
-      {/* TITLE */}
-      <h2 className="text-3xl font-bold mb-8">
-        {searchData || "Popular Hotels"}
-      </h2>
+      {/* 🔹 Section Title */}
+      <h2 className="text-2xl font-bold mb-5">{title}</h2>
 
-      {/* LOADING */}
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl p-4 animate-pulse">
-              <div className="h-[180px] bg-gray-200 rounded-xl mb-3"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          ))}
-        </div>
-      ) : hotels.length === 0 ? (
-        
-        /* EMPTY STATE */
-        <div className="text-center mt-20">
-          <p className="text-xl font-semibold">
-            No hotels found 😕
-          </p>
-          <p className="text-gray-500 mt-2">
-            Try searching for another destination
-          </p>
-        </div>
+      {/* 🔹 Scroll Buttons */}
+      <button
+        onClick={scrollLeft}
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md p-2 rounded-full hidden md:block"
+      >
+        <ChevronLeft size={20} />
+      </button>
 
-      ) : (
-        /* GRID */
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <button
+        onClick={scrollRight}
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md p-2 rounded-full hidden md:block"
+      >
+        <ChevronRight size={20} />
+      </button>
 
-          {hotels.map((hotel, i) => {
-            const images = hotel.images || [];
-            const currentIndex = imageIndex[i] || 0;
+      {/* 🔹 Cards Row */}
+      <div
+        ref={scrollRef}
+        className="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory"
+      >
+        {hotels.map((hotel, i) => (
+          <div
+            key={i}
+            className="min-w-[260px] max-w-[260px] flex-shrink-0 snap-start cursor-pointer group"
+          >
+            {/* Image */}
+            <div className="relative overflow-hidden rounded-2xl">
+              <img
+                src={hotel.image || "/hotel.jpg"}
+                alt={hotel.name}
+                className="h-64 w-full object-cover transition duration-300 group-hover:scale-105"
+              />
 
-            const currentImage =
-              images.length > 0
-                ? images[currentIndex]?.thumbnail
-                : "https://via.placeholder.com/400";
+              {/* ❤️ Wishlist */}
+              <button className="absolute top-3 right-3 bg-white/80 p-2 rounded-full shadow">
+                <Heart size={18} />
+              </button>
 
-            return (
-              <div
-                key={i}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 cursor-pointer"
-              >
-                {/* IMAGE */}
-                <div className="relative w-full aspect-[4/3] bg-gray-100">
-
-                  <img
-                    src={currentImage}
-                    alt={hotel.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-
-                  {/* ARROWS */}
-                  {images.length > 1 && (
-                    <>
-                      <button
-                        onClick={() => prevImg(i, images.length)}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:scale-110 transition"
-                      >
-                        <ChevronLeft size={16} />
-                      </button>
-
-                      <button
-                        onClick={() => nextImg(i, images.length)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:scale-110 transition"
-                      >
-                        <ChevronRight size={16} />
-                      </button>
-                    </>
-                  )}
-
-                  {/* COUNTER */}
-                  {images.length > 1 && (
-                    <div className="absolute bottom-2 right-2 text-xs bg-black/70 text-white px-2 py-0.5 rounded-md">
-                      {currentIndex + 1}/{images.length}
-                    </div>
-                  )}
-                </div>
-
-                {/* CONTENT */}
-                <div className="p-4 flex flex-col gap-1">
-
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-semibold text-gray-900 truncate">
-                      {hotel.name || "Hotel"}
-                    </h3>
-
-                    <div className="flex items-center gap-1 text-sm">
-                      <Star size={14} className="fill-rose-500 text-rose-500" />
-                      {hotel.overall_rating || "4.0"}
-                    </div>
-                  </div>
-
-                  <p className="text-gray-500 text-sm truncate">
-                    {hotel.type || "Hotel"}
-                  </p>
-
-                  <p className="mt-2 font-semibold text-rose-500">
-                    ₹{hotel.rate_per_night?.lowest || "2500"}{" "}
-                    <span className="text-gray-500 text-sm">/ night</span>
-                  </p>
-
-                </div>
+              {/* ⭐ Rating */}
+              <div className="absolute bottom-3 left-3 bg-white px-2 py-1 rounded-lg flex items-center gap-1 text-sm shadow">
+                <Star size={14} />
+                <span>{hotel.rating || "4.5"}</span>
               </div>
-            );
-          })}
+            </div>
 
-        </div>
-      )}
+            {/* Info */}
+            <div className="mt-3 space-y-1">
+              <h3 className="font-semibold text-gray-800 truncate">
+                {hotel.name || "Beautiful Stay"}
+              </h3>
+
+              <p className="text-gray-500 text-sm">
+                {hotel.location || searchData}
+              </p>
+
+              <p className="text-gray-500 text-sm">
+                1–5 nights available
+              </p>
+
+              <p className="font-semibold text-gray-900">
+                ₹{hotel.price || "2500"}{" "}
+                <span className="text-gray-500 font-normal">night</span>
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

@@ -1,119 +1,67 @@
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Heart } from "lucide-react";
+import { useState } from "react";
 
-const ExperienceCard = ({ post }) => {
-  const [index, setIndex] = useState(0);
-
-  const images = Array.isArray(post?.images) ? post.images : [];
-
-  const fallback =
-    "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800";
-
-  useEffect(() => {
-    if (index >= images.length && images.length > 0) {
-      setIndex(0);
-    }
-  }, [images, index]);
-
-  if (!post) return null;
-
-  const nextImg = () => {
-    if (images.length === 0) return;
-    setIndex((prev) => (prev + 1) % images.length);
-  };
-
-  const prevImg = () => {
-    if (images.length === 0) return;
-    setIndex((prev) =>
-      prev === 0 ? images.length - 1 : prev - 1
-    );
-  };
-
-  const currentImage =
-    images.length > 0
-      ? images[index % images.length]
-      : fallback;
+const ExperienceCard = ({ post, onReadMore, isActive }) => {
+  const [liked, setLiked] = useState(false);
 
   return (
-    <div className="w-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 border border-gray-100">
-
-      {/* IMAGE */}
-      <div className="relative w-full aspect-[4/3] bg-gray-100">
+    <div
+      className={`bg-white rounded-3xl shadow-md overflow-hidden transition duration-300 
+      ${isActive ? "ring-2 ring-rose-500 scale-[1.01]" : "hover:shadow-xl"}`}
+    >
+      {/* IMAGES */}
+      <div className="relative">
         <img
-          src={currentImage}
-          alt="experience"
-          className="w-full h-full object-cover"
-          loading="lazy"
+          src={post.images?.[0] || "/hotel.jpg"}
+          alt=""
+          className="w-full object-cover max-h-[400px]"
         />
 
-        {/* ARROWS */}
-        {images.length > 1 && (
-          <>
-            <button
-              onClick={prevImg}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:scale-110 transition"
-            >
-              <ChevronLeft size={18} />
-            </button>
-
-            <button
-              onClick={nextImg}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:scale-110 transition"
-            >
-              <ChevronRight size={18} />
-            </button>
-          </>
-        )}
-
-        {/* COUNTER */}
-        {images.length > 1 && (
-          <div className="absolute bottom-2 right-2 text-xs bg-black/70 text-white px-2 py-0.5 rounded-md">
-            {index + 1}/{images.length}
-          </div>
-        )}
+        <button
+          onClick={() => setLiked(!liked)}
+          className="absolute top-3 right-3 bg-white p-2 rounded-full shadow"
+        >
+          <Heart
+            size={18}
+            className={liked ? "text-red-500 fill-red-500" : "text-gray-600"}
+          />
+        </button>
       </div>
 
       {/* CONTENT */}
-      <div className="p-4 flex flex-col gap-2">
+      <div className="p-5 space-y-3">
 
-        {/* USER + TIME */}
-        <div className="flex justify-between items-center">
-          <h3 className="font-semibold text-base text-gray-900">
-            {post?.name || "User"}
+        <div className="flex justify-between">
+          <h3 className="font-semibold text-lg">
+            {post.name}
           </h3>
-          <span className="text-xs text-gray-400">
-            {post?.time || ""}
-          </span>
+          <span className="text-sm text-gray-400">{post.time}</span>
         </div>
 
-        {/* TEXT */}
-        <p className="text-sm text-gray-600 leading-relaxed">
-          {post?.text || ""}
+        <p className="text-gray-500 text-sm">
+          {post.text.length > 120
+            ? post.text.slice(0, 120) + "..."
+            : post.text}
         </p>
 
-        {/* RATING */}
-        <div className="flex gap-1 mt-1">
-          {[...Array(5)].map((_, i) => (
-            <Star
+        {/* IMAGES PREVIEW */}
+        <div className="flex gap-2 overflow-hidden">
+          {post.images?.slice(0, 2).map((img, i) => (
+            <img
               key={i}
-              size={16}
-              className={
-                i < (post?.rating || 0)
-                  ? "text-rose-500 fill-rose-500"
-                  : "text-gray-300"
-              }
+              src={img}
+              className="w-16 h-16 object-cover rounded-lg"
             />
           ))}
         </div>
 
-        {/* FOOTER */}
-        <p className="text-xs text-gray-400 mt-1">
-          Posted by{" "}
-          <span className="text-gray-700 font-medium">
-            {post?.name || "User"}
-          </span>
-        </p>
-
+        {/* BUTTON */}
+        <button
+          onClick={onReadMore}
+          className="text-rose-500 text-sm font-semibold hover:underline"
+        >
+          {isActive ? "Close ←" : "Read More →"}
+        </button>
       </div>
     </div>
   );

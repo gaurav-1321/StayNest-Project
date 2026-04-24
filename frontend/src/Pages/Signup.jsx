@@ -9,7 +9,7 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Normal Signup
+  // 🔐 Normal Signup
   const handleSignup = async () => {
     if (!email || !password) {
       alert("Please fill all fields");
@@ -27,25 +27,27 @@ const Signup = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({})); // ✅ safe parse
 
-      if (res.status === 201) {
-        alert("Registered Successfully");
+      if (res.ok) {
+        alert("Registered Successfully ✅");
         navigate("/login");
       } else {
-        alert(data.msg);
+        alert(data.msg || data.error || "Signup Failed ❌");
       }
+
     } catch (error) {
-      alert("Server Error");
+      console.error("Signup Error:", error);
+      alert("Cannot connect to server ❌");
     } finally {
       setLoading(false);
     }
   };
 
-  // Google Signup
+  // 🌐 Google Signup
   const handleGoogleSignup = async (credentialResponse) => {
     if (!credentialResponse?.credential) {
-      alert("Google Signup Failed");
+      alert("Google Signup Failed ❌");
       return;
     }
 
@@ -62,20 +64,20 @@ const Signup = () => {
         }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
-      if (res.status === 200) {
-        alert("Google Signup Successful");
+      if (res.ok) {
+        alert("Google Signup Successful ✅");
 
-        // FIX: only works if backend returns token
         localStorage.setItem("token", data.token);
-
-        navigate("/");
+        navigate("/home");
       } else {
-        alert(data.msg);
+        alert(data.msg || "Google Signup Failed ❌");
       }
+
     } catch (error) {
-      alert("Google Signup Error");
+      console.error("Google Signup Error:", error);
+      alert("Cannot connect to server ❌");
     } finally {
       setLoading(false);
     }
@@ -108,7 +110,7 @@ const Signup = () => {
         <div className="p-8 md:p-14 flex flex-col justify-center">
 
           <h2 className="text-4xl font-bold text-gray-800 mb-2">
-            Create Account ✨
+            Create Account
           </h2>
 
           <p className="text-gray-500 mb-8">
@@ -119,7 +121,7 @@ const Signup = () => {
           <input
             type="email"
             placeholder="Enter your email"
-            className="w-full border border-gray-300 rounded-xl px-5 py-4 mb-4 focus:ring-2 focus:ring-rose-400 outline-none"
+            className="w-full border border-gray-300 rounded-xl px-5 py-4 mb-4 focus:ring-2 focus:ring-rose-500 outline-none"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -128,16 +130,16 @@ const Signup = () => {
           <input
             type="password"
             placeholder="Create password"
-            className="w-full border border-gray-300 rounded-xl px-5 py-4 mb-5 focus:ring-2 focus:ring-rose-400 outline-none"
+            className="w-full border border-gray-300 rounded-xl px-5 py-4 mb-5 focus:ring-2 focus:ring-rose-500 outline-none"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          {/* Signup Button */}
+          {/* Button */}
           <button
             onClick={handleSignup}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:scale-[1.02] text-white py-4 rounded-xl font-semibold shadow-lg transition disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-rose-500 to-pink-500 text-white py-4 rounded-xl font-semibold shadow-lg transition disabled:opacity-50"
           >
             {loading ? "Creating..." : "Create Account"}
           </button>
@@ -155,11 +157,11 @@ const Signup = () => {
           <div className="flex justify-center">
             <GoogleLogin
               onSuccess={handleGoogleSignup}
-              onError={() => alert("Google Signup Failed")}
+              onError={() => alert("Google Signup Failed ❌")}
             />
           </div>
 
-          {/* Login Link */}
+          {/* Login */}
           <p className="text-center mt-8 text-gray-600">
             Already have an account?{" "}
             <Link to="/login" className="text-rose-500 font-semibold hover:underline">

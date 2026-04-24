@@ -1,64 +1,93 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 
 const Login = () => {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Normal Login
+  // 🔐 Normal Login
   const handleLogin = async () => {
-    const res = await fetch("http://localhost:5000/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    if (!email || !password) {
+      alert("Please fill all fields");
+      return;
+    }
 
-    const data = await res.json();
+    try {
+      setLoading(true);
 
-    if (res.status === 200) {
-      alert("Login Successful");
-      localStorage.setItem("token", data.token);
-      navigate("/home");
-    } else {
-      alert(data.msg);
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        alert("Login Successful ✅");
+
+        localStorage.setItem("token", data.token);
+        navigate("/home");
+      } else {
+        alert(data.message || "Login Failed ❌");
+      }
+
+    } catch (error) {
+      console.error("Login Error:", error);
+      alert("Cannot connect to server ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Google Login
+  // 🌐 Google Login
   const handleGoogleLogin = async (credentialResponse) => {
-    const res = await fetch("http://localhost:5000/api/auth/google", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        token: credentialResponse.credential,
-      }),
-    });
+    if (!credentialResponse?.credential) {
+      alert("Google Login Failed ❌");
+      return;
+    }
 
-    const data = await res.json();
+    try {
+      setLoading(true);
 
-    if (res.status === 200) {
-      alert("Google Login Successful");
-      localStorage.setItem("token", data.token);
-      navigate("/home");
-    } else {
-      alert(data.msg);
+      const res = await fetch("http://localhost:5000/api/auth/google", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token: credentialResponse.credential,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        alert("Google Login Successful ✅");
+
+        localStorage.setItem("token", data.token);
+        navigate("/home");
+      } else {
+        alert(data.msg || "Google Login Failed ❌");
+      }
+
+    } catch (error) {
+      console.error("Google Login Error:", error);
+      alert("Cannot connect to server ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <>
-    <Navbar/>
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-slate-100 flex items-center justify-center px-4">
 
-      {/* Card */}
       <div className="max-w-6xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden grid md:grid-cols-2">
 
         {/* Left Side */}
@@ -122,9 +151,10 @@ const Login = () => {
           {/* Login Button */}
           <button
             onClick={handleLogin}
-            className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:scale-[1.02] text-white py-4 rounded-xl font-semibold shadow-lg transition"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:scale-[1.02] text-white py-4 rounded-xl font-semibold shadow-lg transition disabled:opacity-50"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
 
           {/* Divider */}
@@ -140,7 +170,7 @@ const Login = () => {
           <div className="flex justify-center">
             <GoogleLogin
               onSuccess={handleGoogleLogin}
-              onError={() => alert("Google Login Failed")}
+              onError={() => alert("Google Login Failed ❌")}
             />
           </div>
 
@@ -158,7 +188,6 @@ const Login = () => {
         </div>
       </div>
     </div>
-    </>
   );
 };
 
