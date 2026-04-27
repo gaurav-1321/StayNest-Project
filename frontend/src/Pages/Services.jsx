@@ -28,7 +28,7 @@ const Services = () => {
     <>
       <Navbar />
 
-      {/* ✅ ONLY TOP HERO HAS BACKGROUND */}
+  
       <div
         className="h-[220px] bg-cover bg-center flex items-center justify-center"
         style={{ backgroundImage: "url('/bg-img.png')" }}
@@ -39,7 +39,7 @@ const Services = () => {
         </div>
       </div>
 
-      {/* ✅ MAIN CONTENT (WHITE LIKE BOOKING) */}
+    
       <div className="bg-gray-50 min-h-screen py-10">
 
         <div className="max-w-7xl mx-auto px-6">
@@ -60,7 +60,6 @@ const Services = () => {
             </div>
           </div>
 
-          {/* 🏷️ CATEGORY FILTER */}
           <div className="flex gap-3 flex-wrap justify-center mb-10">
             {categories.map((cat, i) => (
               <button
@@ -78,14 +77,14 @@ const Services = () => {
             ))}
           </div>
 
-          {/* ❌ EMPTY */}
+    
           {filteredData.length === 0 ? (
             <div className="text-center mt-20">
               <p className="text-xl font-semibold">No services found</p>
               <p className="text-gray-500 mt-2">Try different search</p>
             </div>
           ) : (
-            /* ✅ CARD CONTAINER (LIKE BOOKING) */
+          
             <div className="bg-white rounded-2xl shadow-sm p-6">
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

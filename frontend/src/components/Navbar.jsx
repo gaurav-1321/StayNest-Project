@@ -86,43 +86,43 @@ const Navbar = () => {
             onClick={() => setOpen(!open)}
             className={`p-2 rounded-full border transition ${
               scrolled
-                ? "bg-white border-gray-300"
-                : "bg-white/20 text-white border-white/40"
+                ? "bg-white border-gray-200"
+                : "bg-white/20 text-black/20 border-white/40"
             }`}
           >
             <Menu size={20} />
           </button>
 
-          {/* DROPDOWN */}
-          {open && (
-            <div className="absolute right-8 top-20 w-56 bg-white rounded-xl shadow-xl border overflow-hidden">
+        {/* DROPDOWN */}
+{open && (
+  <div className="absolute right-0 top-16 w-56 bg-white text-black rounded-xl shadow-lg border border-gray-200 overflow-hidden">
 
-              <Link
-                to="/host"
-                className="block px-4 py-3 hover:bg-gray-100"
-                onClick={() => setOpen(false)}
-              >
-                Become a Host
-              </Link>
+    <Link
+      to="/host"
+      className="block px-4 py-3 hover:bg-gray-100 transition"
+      onClick={() => setOpen(false)}
+    >
+      Become a Host
+    </Link>
 
-              <Link
-                to="/about"
-                className="block px-4 py-3 hover:bg-gray-100"
-                onClick={() => setOpen(false)}
-              >
-                About Us
-              </Link>
+    <Link
+      to="/about"
+      className="block px-4 py-3 hover:bg-gray-100 transition"
+      onClick={() => setOpen(false)}
+    >
+      About Us
+    </Link>
 
-              <Link
-                to="/contact"
-                className="block px-4 py-3 hover:bg-gray-100"
-                onClick={() => setOpen(false)}
-              >
-                Contact Us
-              </Link>
+    <Link
+      to="/contact"
+      className="block px-4 py-3 hover:bg-gray-100 transition"
+      onClick={() => setOpen(false)}
+    >
+      Contact Us
+    </Link>
 
-            </div>
-          )}
+  </div>
+)}
         </div>
       </div>
     </nav>

@@ -27,18 +27,18 @@ const Signup = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json().catch(() => ({})); // ✅ safe parse
+      const data = await res.json().catch(() => ({})); 
 
       if (res.ok) {
-        alert("Registered Successfully ✅");
+        alert("Registered Successfully ");
         navigate("/login");
       } else {
-        alert(data.msg || data.error || "Signup Failed ❌");
+        alert(data.msg || data.error || "Signup Failed ");
       }
 
     } catch (error) {
       console.error("Signup Error:", error);
-      alert("Cannot connect to server ❌");
+      alert("Cannot connect to server ");
     } finally {
       setLoading(false);
     }
@@ -47,7 +47,7 @@ const Signup = () => {
   // 🌐 Google Signup
   const handleGoogleSignup = async (credentialResponse) => {
     if (!credentialResponse?.credential) {
-      alert("Google Signup Failed ❌");
+      alert("Google Signup Failed ");
       return;
     }
 
@@ -67,17 +67,17 @@ const Signup = () => {
       const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
-        alert("Google Signup Successful ✅");
+        alert("Google Signup Successful");
 
         localStorage.setItem("token", data.token);
         navigate("/home");
       } else {
-        alert(data.msg || "Google Signup Failed ❌");
+        alert(data.msg || "Google Signup Failed ");
       }
 
     } catch (error) {
       console.error("Google Signup Error:", error);
-      alert("Cannot connect to server ❌");
+      alert("Cannot connect to server ");
     } finally {
       setLoading(false);
     }

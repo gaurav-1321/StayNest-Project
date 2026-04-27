@@ -9,7 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 🔐 Normal Login
+  // Normal Login
   const handleLogin = async () => {
     if (!email || !password) {
       alert("Please fill all fields");
@@ -30,17 +30,17 @@ const Login = () => {
       const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
-        alert("Login Successful ✅");
+        alert("Login Successful ");
 
         localStorage.setItem("token", data.token);
         navigate("/home");
       } else {
-        alert(data.message || "Login Failed ❌");
+        alert(data.message || "Login Failed ");
       }
 
     } catch (error) {
       console.error("Login Error:", error);
-      alert("Cannot connect to server ❌");
+      alert("Cannot connect to server ");
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ const Login = () => {
   // 🌐 Google Login
   const handleGoogleLogin = async (credentialResponse) => {
     if (!credentialResponse?.credential) {
-      alert("Google Login Failed ❌");
+      alert("Google Login Failed ");
       return;
     }
 
@@ -69,17 +69,17 @@ const Login = () => {
       const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
-        alert("Google Login Successful ✅");
+        alert("Google Login Successful");
 
         localStorage.setItem("token", data.token);
         navigate("/home");
       } else {
-        alert(data.msg || "Google Login Failed ❌");
+        alert(data.msg || "Google Login Failed ");
       }
 
     } catch (error) {
       console.error("Google Login Error:", error);
-      alert("Cannot connect to server ❌");
+      alert("Cannot connect to server ");
     } finally {
       setLoading(false);
     }
@@ -170,7 +170,7 @@ const Login = () => {
           <div className="flex justify-center">
             <GoogleLogin
               onSuccess={handleGoogleLogin}
-              onError={() => alert("Google Login Failed ❌")}
+              onError={() => alert("Google Login Failed ")}
             />
           </div>
 

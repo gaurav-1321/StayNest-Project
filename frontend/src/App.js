@@ -1,7 +1,7 @@
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Navigate, Route, Routes } from "react-router-dom";
+import Becomehost from "./Pages/Becomehost";
 import Home from "./Pages/Home";
-import Host from "./Pages/Host";
 import Login from "./Pages/Login";
 import Services from "./Pages/Services";
 import Signup from "./Pages/Signup";
@@ -9,7 +9,7 @@ import Userexperi from "./Pages/Userexperi";
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+    <GoogleOAuthProvider clientId="">
 
       <div className="min-h-screen bg-gray-50">
         
@@ -21,7 +21,7 @@ function App() {
           <Route path="/services" element={<Services />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/host" element={<Host />} />
+         <Route path="/host" element={<Becomehost/>}/>
         </Routes>
 
       </div>

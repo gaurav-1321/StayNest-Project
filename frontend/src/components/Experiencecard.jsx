@@ -49,6 +49,7 @@ const ExperienceCard = ({ post, onReadMore, isActive }) => {
           {post.images?.slice(0, 2).map((img, i) => (
             <img
               key={i}
+              alt=""
               src={img}
               className="w-16 h-16 object-cover rounded-lg"
             />

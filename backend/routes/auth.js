@@ -4,64 +4,106 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { OAuth2Client } = require("google-auth-library");
+
+if (!process.env.JWT_SECRET || !process.env.CLIENT_ID) {
+  throw new Error("Missing environment variables");
+}
+
 const client = new OAuth2Client(process.env.CLIENT_ID);
 
 
-// REGISTER
+//  REGISTER 
 router.post("/register", async (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-
   try {
-    const checkresult = await pool.query(
+    let { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required",
+      });
+    }
+
+    email = email.toLowerCase();
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        message: "Password must be at least 6 characters",
+      });
+    }
+
+    const existingUser = await pool.query(
       "SELECT * FROM users WHERE email=$1",
       [email]
     );
 
-    if (checkresult.rows.length > 0) {
+    if (existingUser.rows.length > 0) {
       return res.status(400).json({
-        msg: "Email already exists"
+        message: "Email already exists",
       });
     }
 
     const hash = await bcrypt.hash(password, 10);
 
-    await pool.query(
-      "INSERT INTO users (email,password) VALUES ($1, $2)",
+    const newUser = await pool.query(
+      "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *",
       [email, hash]
     );
 
+    const token = jwt.sign(
+      { id: newUser.rows[0].id, email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
     res.status(201).json({
-      msg: "Registered Successfully"
+      message: "Registered Successfully",
+      token,
+      user: {
+        id: newUser.rows[0].id,
+        email,
+      },
     });
 
   } catch (err) {
-  console.log("REGISTER ERROR:", err.message); 
-  res.status(500).json({
-    msg: "Server Error",
-    error: err.message
-  });
+    console.error("REGISTER ERROR:", err.message);
+    res.status(500).json({
+      message: "Server Error",
+    });
   }
 });
 
 
 // LOGIN
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
   try {
-    const checkresult = await pool.query(
+    let { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required",
+      });
+    }
+
+    email = email.toLowerCase();
+
+    const result = await pool.query(
       "SELECT * FROM users WHERE email=$1",
       [email]
     );
 
-    if (checkresult.rows.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(400).json({
         message: "Email not found",
       });
     }
 
-    const user = checkresult.rows[0];
+    const user = result.rows[0];
+
+    if (!user.password) {
+      return res.status(400).json({
+        message: "Use Google login for this account",
+      });
+    }
 
     const validPassword = await bcrypt.compare(
       password,
@@ -70,7 +112,7 @@ router.post("/login", async (req, res) => {
 
     if (!validPassword) {
       return res.status(400).json({
-        message: "Wrong Password",
+        message: "Wrong password",
       });
     }
 
@@ -80,7 +122,7 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    return res.status(200).json({
+    res.status(200).json({
       message: "Login Successful",
       token,
       user: {
@@ -90,54 +132,68 @@ router.post("/login", async (req, res) => {
     });
 
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({
+    console.error("LOGIN ERROR:", error.message);
+    res.status(500).json({
       message: "Server Error",
     });
   }
 });
 
-// ================= GOOGLE LOGIN / SIGNUP =================
+
+//GOOGLE LOGIN / SIGNUP
 router.post("/google", async (req, res) => {
   try {
     const { token } = req.body;
 
+    if (!token) {
+      return res.status(400).json({
+        message: "Token is required",
+      });
+    }
+
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: "426982018132-9sjqbjknrfim3e3taeu1fq7ph3atfe2j.apps.googleusercontent.com",
+      audience: process.env.CLIENT_ID,
     });
 
     const payload = ticket.getPayload();
-    const email = payload.email;
+    const email = payload.email.toLowerCase();
 
     let user = await pool.query(
       "SELECT * FROM users WHERE email=$1",
       [email]
     );
 
+    //  Create user 
     if (user.rows.length === 0) {
-      await pool.query(
-        "INSERT INTO users (email, password) VALUES ($1, $2)",
+      const newUser = await pool.query(
+        "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *",
         [email, null]
       );
+      user = newUser;
     }
 
+    const dbUser = user.rows[0];
+
     const jwtToken = jwt.sign(
-      { email },
+      { id: dbUser.id, email: dbUser.email },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
     res.status(200).json({
-      msg: "Google Login Successful",
+      message: "Google Login Successful",
       token: jwtToken,
+      user: {
+        id: dbUser.id,
+        email: dbUser.email,
+      },
     });
 
   } catch (error) {
-    console.log(error.message);
+    console.error("GOOGLE LOGIN ERROR:", error.message);
     res.status(500).json({
-      msg: "Google Login Failed",
-      error: error.message,
+      message: "Google Login Failed",
     });
   }
 });
