@@ -10,16 +10,16 @@ const Card1 = ({ title, searchData }) => {
   useEffect(() => {
     const fetchHotels = async () => {
       try {
-      
+      console.log("Searched data value", searchData );
         const res = await axios.get(
           "http://localhost:5000/api/hotels/search",
           {
-            params: { q: "India" },
+            params: { q: searchData },
           }
         );
 
-        console.log("HOTELS:", res.data);
-        setHotels(res.data || []);
+        console.log("HOTELS:", res.data.hotels);
+        setHotels(res.data.hotels || []);
       } catch (error) {
         console.log("Error fetching hotels:", error);
       }

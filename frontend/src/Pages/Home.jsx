@@ -33,7 +33,7 @@ const Home = () => {
           
         </div>
       </div>
-      <Card1 searchData={searchData}/>
+      <Card1 searchData={searchData || "India"}/>
 
       <Footer />
     </>
