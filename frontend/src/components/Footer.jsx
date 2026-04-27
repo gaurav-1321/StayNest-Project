@@ -20,15 +20,15 @@ const Footer = () => {
 
           {/* SOCIAL */}
           <div className="flex gap-4 text-xl mt-5">
-            <a href="#" className="hover:text-white transition">
+            <a href="/google.com" className="hover:text-white transition">
               <FaGoogle />
             </a>
 
-            <a href="#" className="hover:text-white transition">
+            <a href="/instagram.com" className="hover:text-white transition">
               <FaInstagram />
             </a>
 
-            <a href="#" className="hover:text-white transition">
+            <a href="/facebook.com" className="hover:text-white transition">
               <FaFacebookF />
             </a>
           </div>

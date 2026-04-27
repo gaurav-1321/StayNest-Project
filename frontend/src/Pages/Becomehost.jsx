@@ -1,10 +1,12 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
 
 const Becomehost = () => {
   const navigate = useNavigate();
 
-  //  STATE
   const [formData, setFormData] = useState({
     name: "",
     location: "",
@@ -15,191 +17,143 @@ const Becomehost = () => {
 
   const [images, setImages] = useState([]);
 
-  //  AUTH CHECK (fixed)
+  // AUTH CHECK
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-    }
+    if (!token) navigate("/login");
   }, [navigate]);
 
-  //  HANDLE INPUT CHANGE
+  // INPUT HANDLER
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.placeholder.toLowerCase().includes("name")
-        ? "name"
-        : e.target.placeholder.toLowerCase().includes("location")
-        ? "location"
-        : e.target.placeholder.toLowerCase().includes("price")
-        ? "price"
-        : e.target.placeholder.toLowerCase().includes("guest")
-        ? "guests"
-        : "description"]: e.target.value,
+      [e.target.name]: e.target.value,
     });
   };
 
-  //  IMAGE UPLOAD
-  const handleImageChange = (e) => {
+  // IMAGE TO BASE64
+  const toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+    });
+
+  const handleImageChange = async (e) => {
     const files = Array.from(e.target.files);
-    const urls = files.map((file) => URL.createObjectURL(file));
-    setImages((prev) => [...prev, ...urls]);
+    const base64 = await Promise.all(files.map(toBase64));
+    setImages(base64);
   };
 
-  //  CLEANUP 
-  useEffect(() => {
-    return () => {
-      images.forEach((img) => URL.revokeObjectURL(img));
-    };
-  }, [images]);
-
-  //  SUBMIT
-  const handleSubmit = (e) => {
+  // SUBMIT
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const data = {
+    const payload = {
       ...formData,
-      images,
+      images: JSON.stringify(images), 
     };
+   console.log(payload);
+    try {
+      await axios.post(
+        "http://localhost:5000/api/listings",
+        payload
+      );
 
-    console.log("Submitted Data:", data);
-
-    //  send to backend here
-
-    alert("Listing submitted!");
+      alert("Listing saved!");
+      navigate("/");
+    } catch (err) {
+      console.log("ERROR:", err.response?.data || err.message);
+      alert("Error saving listing");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-8">
+    <>
+      <Navbar />
 
-        {/* HEADING */}
-        <h1 className="text-3xl font-bold mb-2">
-          Become a Host on StayNest
-        </h1>
-        <p className="text-gray-500 mb-6">
-          Start earning by sharing your space with travelers
-        </p>
+      <div className="min-h-screen flex justify-center items-center bg-gray-50 p-6">
+        <div className="bg-white p-8 rounded-xl shadow w-full max-w-3xl">
 
-        {/* FORM */}
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <h1 className="text-2xl font-bold mb-4">
+            Become a Host
+          </h1>
 
-          {/* PROPERTY NAME */}
-          <input
-            type="text"
-            placeholder="Property Name"
-            value={formData.name}
-            onChange={handleChange}
-            className="border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400"
-          />
+          <form onSubmit={handleSubmit} className="grid gap-4">
 
-          {/* LOCATION */}
-          <input
-            type="text"
-            placeholder="Location"
-            value={formData.location}
-            onChange={handleChange}
-            className="border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400"
-          />
+            <input
+              name="name"
+              placeholder="Property Name"
+              value={formData.name}
+              onChange={handleChange}
+              className="border p-2 rounded"
+            />
 
-          {/* PRICE */}
-          <input
-            type="number"
-            placeholder="Price per night (₹)"
-            value={formData.price}
-            onChange={handleChange}
-            className="border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400"
-          />
+            <input
+              name="location"
+              placeholder="Location"
+              value={formData.location}
+              onChange={handleChange}
+              className="border p-2 rounded"
+            />
 
-          {/* GUESTS */}
-          <input
-            type="number"
-            placeholder="Max Guests"
-            value={formData.guests}
-            onChange={handleChange}
-            className="border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400"
-          />
+            <input
+              name="price"
+              type="number"
+              placeholder="Price per night"
+              value={formData.price}
+              onChange={handleChange}
+              className="border p-2 rounded"
+            />
 
-          {/* IMAGE UPLOAD */}
-          <div className="col-span-1 md:col-span-2">
-            <p className="mb-2 font-semibold text-gray-700">Property Photos</p>
+            <input
+              name="guests"
+              type="number"
+              placeholder="Guests"
+              value={formData.guests}
+              onChange={handleChange}
+              className="border p-2 rounded"
+            />
 
-            <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 bg-gray-50 hover:border-rose-400 transition">
+            {/* IMAGES */}
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleImageChange}
+            />
 
-              {images.length === 0 ? (
-                <label className="flex flex-col items-center justify-center gap-2 cursor-pointer py-8 text-gray-500 hover:text-rose-500 transition">
-                  <span className="text-2xl">📷</span>
-                  <span className="text-sm font-medium">Upload property images</span>
-
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageChange}
-                  />
-                </label>
-              ) : (
-                <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
-                  {images.map((img, i) => (
-                    <div
-                      key={i}
-                      className="relative group aspect-square overflow-hidden rounded-lg bg-gray-100"
-                    >
-                      <img
-                        src={img}
-                        alt="preview"
-                        className="w-full h-full object-cover"
-                      />
-
-                      {/* DELETE */}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setImages((prev) => prev.filter((_, index) => index !== i))
-                        }
-                        className="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 rounded opacity-0 group-hover:opacity-100 transition"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-
-                  {/* ADD MORE */}
-                  <label className="aspect-square flex items-center justify-center border rounded-lg cursor-pointer text-gray-500 font-semibold hover:text-rose-500 hover:border-rose-400 transition">
-                    +
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageChange}
-                    />
-                  </label>
-                </div>
-              )}
+            <div className="flex gap-2 flex-wrap">
+              {images.map((img, i) => (
+                <img
+                  key={i}
+                  alt=""
+                  src={img}
+                  className="w-20 h-20 object-cover rounded"
+                />
+              ))}
             </div>
-          </div>
 
-          {/* DESCRIPTION */}
-          <textarea
-            placeholder="Describe your property..."
-            rows="4"
-            value={formData.description}
-            onChange={handleChange}
-            className="border p-3 rounded-lg col-span-1 md:col-span-2 focus:outline-none focus:ring-2 focus:ring-rose-400"
-          />
+            <textarea
+              name="description"
+              placeholder="Description"
+              value={formData.description}
+              onChange={handleChange}
+              className="border p-2 rounded"
+              rows="4"
+            />
 
-          {/* SUBMIT */}
-          <button
-            type="submit"
-            className="col-span-1 md:col-span-2 bg-rose-500 text-white py-3 rounded-lg font-semibold hover:bg-rose-600 transition"
-          >
-            Submit Listing
-          </button>
-        </form>
+            <button className="bg-rose-500 text-white py-2 rounded">
+              Submit Listing
+            </button>
+
+          </form>
+        </div>
       </div>
-    </div>
+
+      <Footer />
+    </>
   );
 };
 

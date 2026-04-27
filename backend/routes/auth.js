@@ -9,7 +9,7 @@ if (!process.env.JWT_SECRET || !process.env.CLIENT_ID) {
   throw new Error("Missing environment variables");
 }
 
-const client = new OAuth2Client(process.env.CLIENT_ID);
+const client = new OAuth2Client(process.env.CLIENT_ID || "426982018132-9sjqbjknrfim3e3taeu1fq7ph3atfe2j.apps.googleusercontent.com");
 
 
 //  REGISTER 
@@ -25,7 +25,7 @@ router.post("/register", async (req, res) => {
 
     email = email.toLowerCase();
 
-    if (password.length < 6) {
+    if (password.length < 10) {
       return res.status(400).json({
         message: "Password must be at least 6 characters",
       });
@@ -153,7 +153,7 @@ router.post("/google", async (req, res) => {
 
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: process.env.CLIENT_ID,
+      audience: process.env.CLIENT_ID || "426982018132-9sjqbjknrfim3e3taeu1fq7ph3atfe2j.apps.googleusercontent.com",
     });
 
     const payload = ticket.getPayload();

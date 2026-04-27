@@ -14,7 +14,7 @@ const Card1 = ({ title, searchData }) => {
         const res = await axios.get(
           "http://localhost:5000/api/hotels/search",
           {
-            params: { q: searchData },
+            params: { q: searchData || "India" },
           }
         );
 
